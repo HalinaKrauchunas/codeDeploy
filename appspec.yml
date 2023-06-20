@@ -1,0 +1,12 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /opt/myproject
+
+hooks:
+  BeforeInstall:
+    - location: scripts/build.sh
+      timeout: 300
+  ApplicationStart:
+    - location: scripts/start.sh
