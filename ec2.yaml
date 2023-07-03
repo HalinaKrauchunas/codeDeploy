@@ -48,3 +48,55 @@ Resources:
           sudo chown -R ubuntu:ubuntu /opt/myproject
           sudo chmod -R 755 /opt/myproject
           sudo apt-get install -y gradle
+
+  MyCodePipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: MyCodePipeline
+      RoleArn: arn:aws:iam::430241303913:role/service-role/AWSCodePipelineServiceRole-eu-west-3-ServerPipeline
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: '2'
+                Provider: GitHub
+              Configuration:
+                Owner: HalinaKrauchunas
+                Repo: codeDeploy
+                Branch: main
+                OutputArtifactFormat: CODEPIPELINE
+              ConfigurationProperties:
+                ConnectionArn: arn:aws:codestar-connections:eu-west-3:430241303913:connection/c56d0ea1-15e9-4845-8a92-1e4d33201e16
+              PipelineExecutionStartTrigger:
+                TriggerType: "Source"
+                TriggerDetail: "CodePipelineStartPipelineExecution"
+                TriggerEvents:
+                  - "CodeCommit:RepositoryRefUpdated"
+                  - "GitHub:Webhook"
+        - Name: Build
+          Actions:
+           - Name: NoBuildAction
+             ActionTypeId:
+               Category: Build
+               Owner: Custom
+               Provider: NoBuild
+               Version: '1'
+        - Name: Deploy
+          Actions:
+            - Name: DeployAction
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: CodeDeploy
+              Configuration:
+                ApplicationName: MyCodeDeployApplication
+                DeploymentGroupName: MyDeploymentGroup
+                DeploymentType: IN_PLACE
+                Region: eu-west-3
+              InputArtifacts:
+                - Name: SourceOutput
+              RunOrder: 1
