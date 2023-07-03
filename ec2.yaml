@@ -1,0 +1,31 @@
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-05b5a865c3579bbc4
+      InstanceType: t2.micro
+      KeyName: Demo
+      Tags:
+        - Key: Name
+          Value: EC2CloudFormation
+        - Key: isDeploy
+          Value: true
+      SecurityGroupIds:
+        - sg-01c6e5aab1d50b937
+      IamInstanceProfile: EC2CodeDeployRole
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          sudo apt-get update -y
+          sudo apt-get install -y openjdk-8-jdk
+          echo 'JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"' | sudo tee -a /etc/environment
+          source /etc/environment
+          sudo apt-get install -y ruby wget
+          sudo wget https://aws-codedeploy-eu-west-3.s3.amazonaws.com/latest/install
+          sudo chmod +x install
+          sudo ./install auto
+          sudo service codedeploy-agent start
+          sudo mkdir /opt/myproject
+          sudo chown -R ubuntu:ubuntu /opt/myproject
+          sudo chmod -R 755 /opt/myproject
+          sudo apt-get install -y gradle
