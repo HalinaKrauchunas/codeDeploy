@@ -16,6 +16,6 @@ public class UserController {
     @GetMapping("/account/{userName}")
     public String getUserAccount(@PathVariable("userName") String userName) {
         log.info("Getting UserAccount by userName: [{}]", userName);
-        return "Hello world!" + userName;
+        return "Hello world! :)" + userName;
     }
 }
