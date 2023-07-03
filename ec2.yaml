@@ -1,4 +1,23 @@
 Resources:
+  CodeDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: MyCodeDeployApplication
+  CodeDeployDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref CodeDeployApplication
+      DeploymentGroupName: MyDeploymentGroup
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      ServiceRoleArn: arn:aws:iam::430241303913:role/CodeDeployRole
+      AutoRollbackConfiguration:
+        Enabled: true
+      Ec2TagFilters:
+        - Key: isDeploy
+          Value: yes
+      DeploymentStyle:
+        DeploymentType: IN_PLACE
+
   MyEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
@@ -7,9 +26,9 @@ Resources:
       KeyName: Demo
       Tags:
         - Key: Name
-          Value: EC2CloudFormation
+          Value: EC2CloudFormation2
         - Key: isDeploy
-          Value: true
+          Value: yes
       SecurityGroupIds:
         - sg-01c6e5aab1d50b937
       IamInstanceProfile: EC2CodeDeployRole
