@@ -6,8 +6,8 @@ Resources:
       InstanceType: t2.micro
       KeyName: Demo
       Tags:
-        - Key: Name
-          Value: "EC2CloudFormation2"
+        - Key: cloudFormation
+          Value: "true"
         - Key: isDeploy
           Value: "true"
       SecurityGroupIds:
