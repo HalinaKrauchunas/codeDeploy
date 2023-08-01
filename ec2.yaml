@@ -1,23 +1,4 @@
 Resources:
-  CodeDeployApplication:
-    Type: AWS::CodeDeploy::Application
-    Properties:
-      ApplicationName: MyCodeDeployApplication
-  CodeDeployDeploymentGroup:
-    Type: AWS::CodeDeploy::DeploymentGroup
-    Properties:
-      ApplicationName: !Ref CodeDeployApplication
-      DeploymentGroupName: MyDeploymentGroup
-      DeploymentConfigName: CodeDeployDefault.AllAtOnce
-      ServiceRoleArn: arn:aws:iam::430241303913:role/CodeDeployRole
-      AutoRollbackConfiguration:
-        Enabled: true
-      Ec2TagFilters:
-        - Key: isDeploy
-          Value: yes
-      DeploymentStyle:
-        DeploymentType: IN_PLACE
-
   MyEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
@@ -26,9 +7,9 @@ Resources:
       KeyName: Demo
       Tags:
         - Key: Name
-          Value: EC2CloudFormation2
+          Value: "EC2CloudFormation2"
         - Key: isDeploy
-          Value: yes
+          Value: "true"
       SecurityGroupIds:
         - sg-01c6e5aab1d50b937
       IamInstanceProfile: EC2CodeDeployRole
@@ -48,46 +29,3 @@ Resources:
           sudo chown -R ubuntu:ubuntu /opt/myproject
           sudo chmod -R 755 /opt/myproject
           sudo apt-get install -y gradle
-
-  MyCodePipeline:
-    Type: AWS::CodePipeline::Pipeline
-    Properties:
-      Name: MyCodePipeline
-      RoleArn: arn:aws:iam::430241303913:role/service-role/AWSCodePipelineServiceRole-eu-west-3-ServerPipeline
-      Stages:
-        - Name: Source
-          Actions:
-            - Name: SourceAction
-              ActionTypeId:
-                Category: Source
-                Owner: ThirdParty
-                Version: '2'
-                Provider: GitHub
-              Configuration:
-                Owner: HalinaKrauchunas
-                Repo: codeDeploy
-                Branch: main
-                OutputArtifactFormat: CODEPIPELINE
-              ConfigurationProperties:
-                ConnectionArn: arn:aws:codestar-connections:eu-west-3:430241303913:connection/c56d0ea1-15e9-4845-8a92-1e4d33201e16
-              PipelineExecutionStartTrigger:
-                TriggerType: "Source"
-                TriggerEvents:
-                  - "CodeCommit:RepositoryRefUpdated"
-                  - "GitHub:Webhook"
-        - Name: Deploy
-          Actions:
-            - Name: DeployAction
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Version: '1'
-                Provider: CodeDeploy
-              Configuration:
-                ApplicationName: MyCodeDeployApplication
-                DeploymentGroupName: MyDeploymentGroup
-                DeploymentType: IN_PLACE
-                Region: eu-west-3
-              InputArtifacts:
-                - Name: SourceOutput
-              RunOrder: 1
